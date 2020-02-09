@@ -9,8 +9,8 @@ class SquareTargetFinder(object):
     def __init__(self, cameraMtx, disMtx):
         self.cameraMatrix = cameraMtx
         self.distortionMatrix = disMtx
-        self.upperHSV = np.array([79,255,255])
-        self.lowerHSV = np.array([64,100,70])
+        self.upperHSV = np.array([100,255,255])
+        self.lowerHSV = np.array([70,100,130])
         self.contourList = []
         self.dimensionList = []
         self.target_contour = None
@@ -26,22 +26,23 @@ class SquareTargetFinder(object):
         return self.adjustedFrame
     
     def __findContours__(self,frame):
-        gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-        _,thresh_img = cv2.threshold(gray,127,255,cv2.THRESH_OTSU)
-        self.contours, hierarchy = cv2.findContours(thresh_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        return self.contours
+        _,thresh_img = cv2.threshold(frame,127,255,cv2.THRESH_BINARY)
+        self.contours, hierarchy = cv2.findContours(thresh_img,1,2)
+        return self.contours,0
 
     def processImage(self,frame):
         self.contourList = []
         self.dimensionList = []
-        contours = self.__findContours__(frame)
+        contours,_ = self.__findContours__(frame)
         self.target_contour = None
         shape = frame.shape
         for cnt in contours:
+            #cnt = np.float32(cnt)
             perimeter = cv2.arcLength(cnt,True)
             self.epsilon = 0.01*cv2.arcLength(cnt,True)
             self.approx = cv2.approxPolyDP(cnt,self.epsilon,True)
             area = cv2.contourArea(cnt)
+            print(area)
             #if the contour isnt a square, dont need
             if len(self.approx) != 4:
                 continue

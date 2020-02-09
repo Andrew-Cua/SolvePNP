@@ -23,7 +23,7 @@ if __name__ == '__main__':
         frame = cam.grabFrame()
         frame = cv2.medianBlur(frame,5)
         hsv_thresh = finder.hsvThreshold(frame)
-        contours,distance = finder.processImage(frame)
+        contours,distance = finder.processImage(hsv_thresh)
         if contours is not None:
             for cnt in contours:
                 x,y,w,h = cv2.boundingRect(cnt)
